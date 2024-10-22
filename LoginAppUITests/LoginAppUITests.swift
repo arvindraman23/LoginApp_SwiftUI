@@ -2,42 +2,110 @@
 //  LoginAppUITests.swift
 //  LoginAppUITests
 //
-//  Created by Meghana  on 10/21/24.
+//  Created by Arvind  on 10/21/24.
 //
 
 import XCTest
 
 final class LoginAppUITests: XCTestCase {
 
+    var app: XCUIApplication!
+
     override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-
-        // In UI tests it is usually best to stop immediately when a failure occurs.
         continueAfterFailure = false
-
-        // In UI tests it’s important to set the initial state - such as interface orientation - required for your tests before they run. The setUp method is a good place to do this.
+        app = XCUIApplication()
+        app.launch()
     }
 
     override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
+        app = nil
+    }
+    
+    // UI Unit test to check if user is navigated to SecondView(Home Page)
+    // when valid credentials are passed to authenticate
+    func testValidCredentialsUILogin() throws {
+        let usernameTextField = app.textFields["usernameTextField"]
+        let passwordSecureField = app.secureTextFields["passwordSecureField"]
+        let loginButton = app.buttons["Login"]
+        
+        usernameTextField.tap()
+        usernameTextField.typeText("Arvind")
+        
+        passwordSecureField.tap()
+        passwordSecureField.typeText("111")
+        
+        loginButton.tap()
+        
+        let secondViewText = app.staticTexts["Welcome"]
+        XCTAssertTrue(secondViewText.waitForExistence(timeout: 3.0), "User must be navigated to SecondView upon successful login.")
+    }
+    
+    // UI Unit test to check if invalid alert view is displayed
+    // when invalid credentials are passed to authenticate
+    func testInvalidCredentialsUILogin() throws {
+        let usernameTextField = app.textFields["usernameTextField"]
+        let passwordSecureField = app.secureTextFields["passwordSecureField"]
+        let loginButton = app.buttons["Login"]
+        
+        usernameTextField.tap()
+        usernameTextField.typeText("InvalidUsername")
+        
+        passwordSecureField.tap()
+        passwordSecureField.typeText("InvalidPassword")
+        
+        loginButton.tap()
+        
+        let invalidAlertView = app.alerts["Invalid"]
+        XCTAssertTrue(invalidAlertView.waitForExistence(timeout: 3.0), "Alert must be displayed for invalid login.")
+    }
+    
+    // UI Unit test to check if invalid alert view is dismissed
+    // when Ok button is pressed
+    func testAlertViewDismissal() throws {
+        let usernameTextField = app.textFields["usernameTextField"]
+        let passwordSecureField = app.secureTextFields["passwordSecureField"]
+        let loginButton = app.buttons["Login"]
+        
+        usernameTextField.tap()
+        usernameTextField.typeText("InvalidUsername")
+        
+        passwordSecureField.tap()
+        passwordSecureField.typeText("InvalidPassword")
+        
+        loginButton.tap()
+        
+        let invalidAlertView = app.alerts["Invalid"]
+        XCTAssertTrue(invalidAlertView.waitForExistence(timeout: 3.0), "Alert must be displayed for invalid login.")
+        
+        let invalidAlertViewOkButton = invalidAlertView.buttons["Ok"]
+        invalidAlertViewOkButton.tap()
+        XCTAssertFalse(invalidAlertView.exists, "Alert must be dismissed after tapping on Ok button.")
     }
 
-    @MainActor
-    func testExample() throws {
-        // UI tests must launch the application that they test.
-        let app = XCUIApplication()
-        app.launch()
-
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-    }
-
-    @MainActor
-    func testLaunchPerformance() throws {
-        if #available(macOS 10.15, iOS 13.0, tvOS 13.0, watchOS 7.0, *) {
-            // This measures how long it takes to launch your application.
-            measure(metrics: [XCTApplicationLaunchMetric()]) {
-                XCUIApplication().launch()
-            }
-        }
+    // UI Unit test to check if user is navigated back to ContentView(Login Page)
+    // when Back button is pressed from the SecondView(Home Page)
+    func testSecondViewBackNavigation() throws {
+        let usernameTextField = app.textFields["usernameTextField"]
+        let passwordSecureField = app.secureTextFields["passwordSecureField"]
+        let loginButton = app.buttons["Login"]
+        
+        usernameTextField.tap()
+        usernameTextField.typeText("Arvind")
+        
+        passwordSecureField.tap()
+        passwordSecureField.typeText("111")
+        
+        loginButton.tap()
+        
+        let secondViewWelcomeText = app.staticTexts["Welcome"]
+        XCTAssertTrue(secondViewWelcomeText.waitForExistence(timeout: 3.0), "User must be navigated to SecondView upon successful login.")
+        
+        let secondViewNavigationBar = app.navigationBars["Home Page"]
+        let navigationBarBackButton = secondViewNavigationBar.buttons.firstMatch
+        
+        navigationBarBackButton.tap()
+        
+        let loginPageNavigationBar = app.navigationBars["Login Page"]
+        XCTAssertTrue(loginPageNavigationBar.waitForExistence(timeout: 3.0), "User must be navigated to first ContentView on tap of Back button.")
     }
 }
