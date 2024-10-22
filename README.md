@@ -1,4 +1,5 @@
-LoginApp
+LOGIN APP
+
 LoginApp is a SwiftUI-based iOS application that demonstrates a simple login functionality with username and password validation, along with navigation to a secondary view upon successful login. It follows the MVVM (Model-View-ViewModel) architecture, which separates the business logic (view model) from the UI layer (views). This application also includes unit tests using XCTest and UI tests using XCUITest.
 
 Features
